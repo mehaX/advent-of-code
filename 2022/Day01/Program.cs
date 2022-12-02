@@ -1,4 +1,4 @@
-﻿static List<List<int>> GetElves()
+﻿List<List<int>> GetElves()
 {
     var inputs = File.ReadAllText("input.txt");
 
@@ -12,14 +12,14 @@
         .ToList();
 }
 
-static int Part1()
+int Part1()
 {
     var elves = GetElves();
 
     return elves.Select(calories => calories.Sum()).OrderDescending().First();
 }
 
-static int Part2()
+int Part2()
 {
     var elves = GetElves();
 
