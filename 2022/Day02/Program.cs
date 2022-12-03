@@ -13,16 +13,16 @@
 
 var encryptedPlays = new Dictionary<char, char>()
 {
-    { 'A', 'X' },
-    { 'B', 'Y' },
-    { 'C', 'Z' },
+    { 'A', 'X' }, // Rock
+    { 'B', 'Y' }, // Paper
+    { 'C', 'Z' }, // Scissors
 };
 
 var optionScores = new Dictionary<char, int>()
 {
-    { 'X', 1 },
-    { 'Y', 2 },
-    { 'Z', 3 },
+    { 'X', 1 }, // Rock
+    { 'Y', 2 }, // Paper
+    { 'Z', 3 }, // Scissors
 };
 
 List<(char, char)> GetGuides()
