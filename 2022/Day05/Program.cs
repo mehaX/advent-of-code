@@ -1,0 +1,89 @@
+﻿Console.WriteLine("Part 1: " + Part1());
+Console.WriteLine("Part 2: " + Part2());
+
+string Part1()
+{
+    GetInput(out var stacks, out var commands);
+    
+    var stackTable = new StackTable(stacks);
+    commands.ForEach(command => stackTable.Shift(command, false));
+    
+    return stackTable.GetResult();
+}
+
+string Part2()
+{
+    GetInput(out var stacks, out var commands);
+    
+    var stackTable = new StackTable(stacks);
+    commands.ForEach(command => stackTable.Shift(command, true));
+    
+    return stackTable.GetResult();
+}
+
+void GetInput(out List<string> stacks, out List<Command> commands)
+{
+    stacks = new List<string>();
+    var inputStr = File.ReadAllText("input.txt");
+    var table = inputStr.Split("\r\n\r\n").First().Split("\r\n").Reverse().ToList();
+    table.RemoveAt(0);
+    var totalCols = table.First().Split(" ").Length;
+    for (var i = 0; i < totalCols; i++)
+    {
+        var stack = "";
+        var index = i * 4 + 1;
+        for (var j = 0; j < table.Count && table[j][index] != ' '; j++)
+        {
+            stack += table[j][index].ToString();
+        }
+        stacks.Add(stack);
+    }
+
+    commands = inputStr.Split("\r\n\r\n").ElementAt(1).Split("\r\n").Select(row =>
+    {
+        var segments = row.Split(" ");
+        var count = int.Parse(segments[1]);
+        var from = int.Parse(segments[3]);
+        var to = int.Parse(segments[5]);
+        return new Command(count, from, to);
+    }).ToList();
+}
+
+public class StackTable
+{
+    private Dictionary<int, Stack<char>> mStacks = new();
+
+    public StackTable(List<string> input)
+    {
+        for (var i = 0; i < input.Count; i++)
+        {
+            mStacks.Add(i + 1, new Stack<char>(input[i]));
+        }
+    }
+
+    public void Shift(Command command, bool hasSameOrder)
+    {
+        var items = new List<char>();
+        for (var i = 0; i < command.Count; i++)
+        {
+            items.Add(mStacks[command.From].Pop());
+        }
+        
+        if (hasSameOrder)
+        {
+            items.Reverse();
+        }
+
+        foreach (var item in items)
+        {
+            mStacks[command.To].Push(item);
+        }
+    }
+
+    public string GetResult()
+    {
+        return string.Join("", mStacks.Select(kv => kv.Value.Peek())!);
+    }
+}
+
+public record Command(int Count, int From, int To);
