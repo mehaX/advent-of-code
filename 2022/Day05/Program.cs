@@ -8,7 +8,7 @@ string Part(bool hasSameOrder)
     var stackTable = new StackTable(stacks);
     commands.ForEach(command => stackTable.RunCommand(command, hasSameOrder));
     
-    return stackTable.GetResult();
+    return stackTable.Result;
 }
 
 void GetInput(out List<string> stacks, out List<Command> commands)
@@ -70,10 +70,7 @@ class StackTable
         }
     }
 
-    public string GetResult()
-    {
-        return string.Join("", mStacks.Select(kv => kv.Value.Peek()));
-    }
+    public string Result => string.Join("", mStacks.Values.Select(s => s.Peek()));
 }
 
 public record Command(int Count, int From, int To);
