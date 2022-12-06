@@ -1,22 +1,12 @@
-﻿Console.WriteLine("Part 1: " + Part1());
-Console.WriteLine("Part 2: " + Part2());
+﻿Console.WriteLine("Part 1: " + Part(false));
+Console.WriteLine("Part 2: " + Part(true));
 
-string Part1()
+string Part(bool hasSameOrder)
 {
     GetInput(out var stacks, out var commands);
     
     var stackTable = new StackTable(stacks);
-    commands.ForEach(command => stackTable.Shift(command, false));
-    
-    return stackTable.GetResult();
-}
-
-string Part2()
-{
-    GetInput(out var stacks, out var commands);
-    
-    var stackTable = new StackTable(stacks);
-    commands.ForEach(command => stackTable.Shift(command, true));
+    commands.ForEach(command => stackTable.RunCommand(command, hasSameOrder));
     
     return stackTable.GetResult();
 }
@@ -61,7 +51,7 @@ public class StackTable
         }
     }
 
-    public void Shift(Command command, bool hasSameOrder)
+    public void RunCommand(Command command, bool hasSameOrder)
     {
         var items = new List<char>();
         for (var i = 0; i < command.Count; i++)
