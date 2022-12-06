@@ -2,20 +2,15 @@
 int Part(int count)
 {
     var input = File.ReadAllText("input.txt");
-    var index = count - 1;
-    while (index < input.Length)
+    int index;
+    for (index = count - 1;
+         index < input.Length && input.Skip(index - (count - 1)).Take(count).Distinct().Count() != count;
+         index++)
     {
-        if (input.Skip(index - (count - 1)).Take(count).Distinct().Count() == count)
-        {
-            break;
-        }
-        
-        index++;
+        // nothing to do here, move on
     }
 
-    index++;
-
-    return index;
+    return index + 1;
 }
 Console.WriteLine("Part 1: " + Part(4));
 Console.WriteLine("Part 2: " + Part(14));
