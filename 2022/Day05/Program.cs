@@ -15,8 +15,8 @@ void GetInput(out List<string> stacks, out List<Command> commands)
 {
     stacks = new List<string>();
     var inputStr = File.ReadAllText("input.txt");
-    var table = inputStr.Split("\r\n\r\n").First().Split("\r\n").Reverse().ToList();
-    table.RemoveAt(0);
+    var chunks = inputStr.Split("\r\n\r\n").Select(chunk => chunk.Split("\r\n")).ToArray();
+    var table = chunks[0].Reverse().Skip(1).ToList();
     var totalCols = table.First().Split(" ").Length;
     for (var i = 0; i < totalCols; i++)
     {
@@ -29,7 +29,7 @@ void GetInput(out List<string> stacks, out List<Command> commands)
         stacks.Add(stack);
     }
 
-    commands = inputStr.Split("\r\n\r\n").ElementAt(1).Split("\r\n").Select(row =>
+    commands = chunks[1].Select(row =>
     {
         var segments = row.Split(" ");
         var count = int.Parse(segments[1]);
@@ -39,11 +39,11 @@ void GetInput(out List<string> stacks, out List<Command> commands)
     }).ToList();
 }
 
-public class StackTable
+class StackTable
 {
     private Dictionary<int, Stack<char>> mStacks = new();
 
-    public StackTable(List<string> input)
+    public StackTable(IList<string> input)
     {
         for (var i = 0; i < input.Count; i++)
         {
@@ -72,7 +72,7 @@ public class StackTable
 
     public string GetResult()
     {
-        return string.Join("", mStacks.Select(kv => kv.Value.Peek())!);
+        return string.Join("", mStacks.Select(kv => kv.Value.Peek()));
     }
 }
 
