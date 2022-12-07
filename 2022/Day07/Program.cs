@@ -1,4 +1,5 @@
 ﻿Console.WriteLine("Part 1: " + Part1());
+Console.WriteLine("Part 2: " + Part2());
 
 long Part1()
 {
@@ -8,16 +9,26 @@ long Part1()
 
     terminal.Deserialize(input).Execute();
 
-    var result = 0L;
-    foreach (var dir in fileSystem.ListDirectories())
-    {
-        var dirSize = fileSystem.DeepListFiles(dir).Sum(file => file.Size);
-        if (dirSize <= 100_000)
-        {
-            result += dirSize;
-        }
-    }
-    return result;
+    return fileSystem
+        .ListDirectories()
+        .Select(fileSystem.CalculateDirSize)
+        .Where(dirSize => dirSize <= 100_000)
+        .Sum();
+}
+
+long Part2()
+{
+    var threshold = 30_000_000L;
+    var totalSpace = 70_000_000L;
+    var fileSystem = new FileSystem();
+    var terminal = new Terminal(fileSystem);
+    var input = File.ReadLines("input.txt").ToList();
+
+    terminal.Deserialize(input).Execute();
+
+    var used = fileSystem.CalculateDirSize();
+    var sizes = fileSystem.ListDirectories().Select(fileSystem.CalculateDirSize).ToList();
+    return sizes.Order().First(size => used - size < totalSpace - threshold);
 }
 
 class Terminal
@@ -72,7 +83,10 @@ class Terminal
                 
                 case "ls":
                 {
+                    var dirs = command.Output.Where(row => row.StartsWith("dir")).ToList();
                     var files = command.Output.Where(row => !row.StartsWith("dir")).ToList();
+                    
+                    mFileSystem.AddDirs(dirs);
                     mFileSystem.AddFiles(files);
                     break;
                 }
@@ -103,8 +117,9 @@ class Command
 
 class FileSystem
 {
-    private List<InputFile> Files { get; } = new();
-    private List<string> mCurrentDir = new();
+    private readonly List<string> mDirs = new(); // stupid idea, because we have to store empty dirs too (thank you debugger for wasting my time)
+    private readonly List<InputFile> mFiles = new();
+    private readonly List<string> mCurrentDir = new();
 
     public string CurrentDir => "/" + (mCurrentDir.Any() ? string.Join("/", mCurrentDir) + "/" : "");
     
@@ -129,9 +144,14 @@ class FileSystem
         }
     }
 
+    public void AddDirs(IEnumerable<string> dirs)
+    {
+        mDirs.AddRange(dirs.Select(dir => CurrentDir + dir.Replace("dir ", "") + "/"));
+    }
+
     public void AddFiles(IEnumerable<string> files)
     {
-        Files.AddRange(files.Select(fileRow =>
+        mFiles.AddRange(files.Select(fileRow =>
         {
             var chunks = fileRow.Split(" ");
             var fileSize = long.Parse(chunks[0]);
@@ -140,14 +160,14 @@ class FileSystem
         }));
     }
 
-    public IEnumerable<InputFile> DeepListFiles(string dir)
+    public long CalculateDirSize(string dir = "/")
     {
-        return Files.Where(file => file.DirPath.StartsWith(dir));
+        return mFiles.Where(file => file.DirPath.StartsWith(dir)).Sum(file => file.Size);
     }
 
     public IEnumerable<string> ListDirectories()
     {
-        return Files.Select(file => file.DirPath).Distinct();
+        return mDirs;
     }
 }
 
