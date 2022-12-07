@@ -48,19 +48,19 @@ class Terminal
 
         foreach (var row in rows)
         {
-            if (row.StartsWith("$"))
+            if (!row.StartsWith("$"))
             {
-                if (!string.IsNullOrEmpty(input))
-                {
-                    mCommands.Add(new Command(input, output));
-                }
-
-                input = row.Replace("$ ", "");
-                output = new();
+                output.Add(row);
                 continue;
             }
             
-            output.Add(row);
+            if (!string.IsNullOrEmpty(input))
+            {
+                mCommands.Add(new Command(input, output));
+            }
+
+            input = row.Replace("$ ", "");
+            output = new();
         }
         
         if (!string.IsNullOrEmpty(input))
