@@ -3,7 +3,6 @@ Console.WriteLine("Part 2: " + Part(10));
 
 int Part(int nrOfKnots)
 {
-    var input = GetInput();
     var knots = new List<Knot>();
     for (var i = 0; i < nrOfKnots; i++)
     {
@@ -11,7 +10,7 @@ int Part(int nrOfKnots)
     }
     var lastKnotPositions = new List<Knot>();
 
-    input.ForEach(motion => ExecuteMotion(knots, motion, lastKnotPositions));
+    GetInput().ForEach(motion => ExecuteMotion(knots, motion, lastKnotPositions));
 
     return lastKnotPositions.Count;
 }
@@ -21,9 +20,9 @@ void ExecuteMotion(IList<Knot> knots, Motion motion, IList<Knot> lastKnotPositio
     for (var count = 1; count <= motion.Count; count++)
     {
         MoveHead(knots, motion.Direction);
-        for (var tailIndex = 1; tailIndex < knots.Count; tailIndex++)
+        for (var knotIndex = 1; knotIndex < knots.Count; knotIndex++)
         {
-            FollowKnot(knots, tailIndex);
+            FollowKnot(knots, knotIndex);
         }
 
         var lastKnot = knots.Last();
