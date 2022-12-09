@@ -20,16 +20,8 @@ void ExecuteMotion(IList<Knot> knots, Motion motion, IList<Knot> lastKnotPositio
     for (var count = 1; count <= motion.Count; count++)
     {
         MoveHead(knots, motion.Direction);
-        for (var knotIndex = 1; knotIndex < knots.Count; knotIndex++)
-        {
-            FollowKnot(knots, knotIndex);
-        }
-
-        var lastKnot = knots.Last();
-        if (!lastKnotPositions.Contains(lastKnot))
-        {
-            lastKnotPositions.Add(lastKnot);
-        }
+        FollowNextKnots(knots);
+        RegisterKnotPosition(lastKnotPositions, knots.Last());
     }
 }
 
@@ -51,6 +43,14 @@ void MoveHead(IList<Knot> knots, Direction direction)
     };
 
     knots[0] = new Knot(head.X + offsetX, head.Y + offsetY);
+}
+
+void FollowNextKnots(IList<Knot> knots)
+{
+    for (var knotIndex = 1; knotIndex < knots.Count; knotIndex++)
+    {
+        FollowKnot(knots, knotIndex);
+    }
 }
 
 void FollowKnot(IList<Knot> knots, int knotIndex)
@@ -84,6 +84,14 @@ void FollowKnot(IList<Knot> knots, int knotIndex)
     }
 
     knots[knotIndex] = new Knot(newX, newY);
+}
+
+void RegisterKnotPosition(IList<Knot> knotPositions, Knot knot)
+{
+    if (!knotPositions.Contains(knot))
+    {
+        knotPositions.Add(knot);
+    }
 }
 
 int Distance(Knot c1, Knot c2)
