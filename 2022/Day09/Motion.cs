@@ -1,0 +1,1 @@
+record Motion(Direction Direction, int Count);

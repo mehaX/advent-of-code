@@ -1,0 +1,1 @@
+record Knot(int X, int Y);

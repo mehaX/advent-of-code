@@ -1,4 +1,6 @@
-﻿Console.WriteLine("Part 1: " + Part(2));
+﻿using Day09;
+
+Console.WriteLine("Part 1: " + Part(2));
 Console.WriteLine("Part 2: " + Part(10));
 
 int Part(int nrOfKnots)
@@ -19,85 +21,10 @@ void ExecuteMotion(IList<Knot> knots, Motion motion, IList<Knot> lastKnotPositio
 {
     for (var count = 1; count <= motion.Count; count++)
     {
-        MoveHead(knots, motion.Direction);
-        FollowNextKnots(knots);
-        RegisterKnotPosition(lastKnotPositions, knots.Last());
+        knots.MoveHead(motion.Direction);
+        knots.FollowNextKnots();
+        lastKnotPositions.RegisterKnotPosition(knots.Last());
     }
-}
-
-void MoveHead(IList<Knot> knots, Direction direction)
-{
-    var head = knots[0];
-    var offsetX = direction switch
-    {
-        Direction.Left => -1,
-        Direction.Right => 1,
-        _ => 0,
-    };
-    
-    var offsetY = direction switch
-    {
-        Direction.Up => 1,
-        Direction.Down => -1,
-        _ => 0,
-    };
-
-    knots[0] = new Knot(head.X + offsetX, head.Y + offsetY);
-}
-
-void FollowNextKnots(IList<Knot> knots)
-{
-    for (var knotIndex = 1; knotIndex < knots.Count; knotIndex++)
-    {
-        FollowKnot(knots, knotIndex);
-    }
-}
-
-void FollowKnot(IList<Knot> knots, int knotIndex)
-{
-    var knot = knots[knotIndex];
-    var prevKnot = knots[knotIndex - 1];
-    
-    if (Distance(knot, prevKnot) <= 1)
-    {
-        return;
-    }
-
-    var newX = knot.X;
-    if (prevKnot.X < knot.X)
-    {
-        newX--;
-    }
-    else if (prevKnot.X > knot.X)
-    {
-        newX++;
-    }
-
-    var newY = knot.Y;
-    if (prevKnot.Y < knot.Y)
-    {
-        newY--;
-    }
-    else if (prevKnot.Y > knot.Y)
-    {
-        newY++;
-    }
-
-    knots[knotIndex] = new Knot(newX, newY);
-}
-
-void RegisterKnotPosition(IList<Knot> knotPositions, Knot knot)
-{
-    if (!knotPositions.Contains(knot))
-    {
-        knotPositions.Add(knot);
-    }
-}
-
-int Distance(Knot c1, Knot c2)
-{
-    var dist = Math.Sqrt(Math.Pow(c2.Y - c1.Y, 2) + Math.Pow(c2.X - c1.X, 2));
-    return (int)Math.Round(dist, 0);
 }
 
 List<Motion> GetInput()
@@ -107,16 +34,4 @@ List<Motion> GetInput()
             (Direction)row[0],
             int.Parse(row.Split(" ")[1])))
         .ToList();
-}
-
-record Knot(int X, int Y);
-
-record Motion(Direction Direction, int Count);
-
-enum Direction
-{
-    Up = 'U',
-    Down = 'D',
-    Left = 'L',
-    Right = 'R',
 }
