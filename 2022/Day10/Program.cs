@@ -5,8 +5,8 @@ var definedCycles = new[] { 20, 60, 100, 140, 180, 220 };
 var part1 = 0;
 var part2 = "";
 
-var valueRegister = new Register(); // Single register that gets manipulated by ADDX instructions
-var cycleRegister = new Register(); // Single program counter cycle that increases for each instruction
+var valueRegister = new Register(1); // Single register that gets manipulated by ADDX instructions
+var cycleRegister = new Register(0); // Single program counter cycle that increases for each instruction
 var memory = new Memory(instructions); // Memory that holds all instructions in one place
 var cpu = new CPU(memory, valueRegister, cycleRegister); // CPU for handling instructions
 var crt = new CRT(valueRegister, cycleRegister); // Handles drawing

@@ -4,9 +4,9 @@ internal class Register
 {
     public int Value { get; private set; }
 
-    public Register()
+    public Register(int initValue)
     {
-        Value = 1;
+        Value = initValue;
     }
 
     public void Increase(int value)

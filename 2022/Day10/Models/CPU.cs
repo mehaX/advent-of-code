@@ -19,6 +19,7 @@ internal class CPU
     
     public void BeginCycle()
     {
+        mCycleRegister.Increase(1);
         if (mRunningInstruction == null)
         {
             GenerateInstruction();
@@ -32,8 +33,6 @@ internal class CPU
         {
             mRunningInstruction = null;
         }
-
-        mCycleRegister.Increase(1);
     }
 
     private void GenerateInstruction()
