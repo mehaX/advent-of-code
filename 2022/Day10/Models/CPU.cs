@@ -27,8 +27,8 @@ internal class CPU
 
     public void EndCycle()
     {
-        var done = mRunningInstruction.Run();
-        if (done)
+        mRunningInstruction.Run();
+        if (mRunningInstruction.IsComplete)
         {
             mRunningInstruction = null;
         }

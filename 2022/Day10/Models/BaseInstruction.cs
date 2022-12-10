@@ -5,20 +5,20 @@ internal abstract class BaseInstruction
     private readonly int mMaxCount;
     private int mCount = 0;
 
+    public bool IsComplete => mCount == mMaxCount;
+
     protected BaseInstruction(int count)
     {
         mMaxCount = count;
     }
     
-    public bool Run()
+    public void Run()
     {
         mCount++;
-        if (mCount == mMaxCount)
+        if (IsComplete)
         {
             Execute();
         }
-
-        return mCount == mMaxCount;
     }
 
     protected abstract void Execute();
