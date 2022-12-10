@@ -13,13 +13,15 @@ var crt = new CRT(valueRegister, cycleRegister); // Handles drawing
 
 while (cpu.IsRunning)
 {
+    cpu.BeginCycle();
+    
     if (definedCycles.Contains(cycleRegister.Value))
     {
         part1 += cycleRegister.Value * valueRegister.Value;
     }
     
-    cpu.BeginCycle();
     part2 += crt.Draw();
+    
     cpu.EndCycle();
 }
 
