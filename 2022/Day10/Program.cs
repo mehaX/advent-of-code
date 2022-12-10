@@ -7,7 +7,7 @@ var part2 = "";
 
 var valueRegister = new Register(); // Single register that gets manipulated by ADDX instructions
 var cycleRegister = new Register(); // Single program counter cycle that increases for each instruction
-var memory = new Memory(instructions); // Memory that holds all instructions in all place
+var memory = new Memory(instructions); // Memory that holds all instructions in one place
 var cpu = new CPU(memory, valueRegister, cycleRegister); // CPU for handling instructions
 var crt = new CRT(valueRegister, cycleRegister); // Handles drawing
 
