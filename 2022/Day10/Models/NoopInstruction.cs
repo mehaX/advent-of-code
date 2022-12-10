@@ -8,6 +8,6 @@ internal class NoopInstruction : BaseInstruction
 
     protected override void Execute()
     {
-        // nothing to do here
+        // totally ignored
     }
 }

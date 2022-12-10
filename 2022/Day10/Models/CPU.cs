@@ -6,7 +6,7 @@ internal class CPU
     private readonly Register mValueRegister;
     private readonly Register mCycleRegister;
     
-    private BaseInstruction? mRunningInstruction;
+    private BaseInstruction? mRunningInstruction = null;
 
     public bool IsRunning => mRunningInstruction != null || mMemory.HasInstructions;
 

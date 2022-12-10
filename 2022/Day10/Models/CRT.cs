@@ -4,6 +4,7 @@ internal class CRT
 {
     private readonly Register mValueRegister;
     private readonly Register mCycleRegister;
+    
     public CRT(Register valueRegister, Register cycleRegister)
     {
         mValueRegister = valueRegister;

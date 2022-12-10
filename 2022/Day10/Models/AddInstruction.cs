@@ -3,7 +3,7 @@ namespace Day10.Models;
 internal class AddInstruction : BaseInstruction
 {
     private readonly Register mRegister;
-    private int mValue;
+    private readonly int mValue;
 
     public AddInstruction(Register register, int value) : base(2)
     {
