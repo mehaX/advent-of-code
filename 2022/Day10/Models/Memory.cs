@@ -2,11 +2,11 @@ namespace Day10;
 
 public class Memory
 {
-    private IList<string> mInstructions;
+    private readonly IList<string> mInstructions;
 
-    public Memory()
+    public Memory(IList<string> instructions)
     {
-        mInstructions = File.ReadAllLines("input.txt").ToList();
+        mInstructions = instructions;
     }
 
     public string PopNextInstruction()

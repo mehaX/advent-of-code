@@ -1,9 +1,9 @@
-internal abstract class BaseComponent
+internal abstract class BaseInstruction
 {
     private readonly int mMaxCount;
     private int mCount = 0;
 
-    protected BaseComponent(int count)
+    protected BaseInstruction(int count)
     {
         mMaxCount = count;
     }

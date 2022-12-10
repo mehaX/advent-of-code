@@ -1,6 +1,6 @@
-internal class NoopBaseComponent : BaseComponent
+internal class NoopInstruction : BaseInstruction
 {
-    public NoopBaseComponent() : base(1)
+    public NoopInstruction() : base(1)
     {
     }
 

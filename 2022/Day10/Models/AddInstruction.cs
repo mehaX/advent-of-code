@@ -1,11 +1,11 @@
 namespace Day10;
 
-internal class AddBaseComponent : BaseComponent
+internal class AddInstruction : BaseInstruction
 {
     private readonly Register mRegister;
     private int mValue;
 
-    public AddBaseComponent(Register register, int value) : base(2)
+    public AddInstruction(Register register, int value) : base(2)
     {
         mRegister = register;
         mValue = value;

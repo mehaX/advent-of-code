@@ -6,7 +6,7 @@ internal class CPU
     private readonly Register mValueRegister;
     private readonly Register mCycleRegister;
     
-    private BaseComponent? mStoredComponent;
+    private BaseInstruction? mStoredComponent;
 
     public bool InProgress => mStoredComponent != null;
 
@@ -17,13 +17,16 @@ internal class CPU
         mCycleRegister = cycleRegister;
     }
     
-    public void RunCycle()
+    public void BeginCycle()
     {
         if (mStoredComponent == null)
         {
             GenerateStoredComponent();
         }
+    }
 
+    public void EndCycle()
+    {
         var done = mStoredComponent.Run();
         if (done)
         {
@@ -39,12 +42,12 @@ internal class CPU
         
         if (nextInstruction == "noop")
         {
-            mStoredComponent = new NoopBaseComponent();
+            mStoredComponent = new NoopInstruction();
         }
         else
         {
             var value = int.Parse(nextInstruction.Split(" ")[1]);
-            mStoredComponent = new AddBaseComponent(mValueRegister, value);
+            mStoredComponent = new AddInstruction(mValueRegister, value);
         }
     }
 }
