@@ -2,18 +2,16 @@ namespace Day10.Models;
 
 public class Memory
 {
-    private readonly IList<string> mInstructions;
+    private readonly Queue<string> mInstructions;
 
-    public Memory(IList<string> instructions)
+    public Memory(IEnumerable<string> instructions)
     {
-        mInstructions = instructions;
+        mInstructions = new Queue<string>(instructions);
     }
 
     public string PopNextInstruction()
     {
-        var instruction = mInstructions.First();
-        mInstructions.RemoveAt(0);
-        return instruction;
+        return mInstructions.Dequeue();
     }
 
     public bool HasInstructions => mInstructions.Any();

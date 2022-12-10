@@ -6,9 +6,9 @@ internal class CPU
     private readonly Register mValueRegister;
     private readonly Register mCycleRegister;
     
-    private BaseInstruction? mStoredComponent;
+    private BaseInstruction? mRunningInstruction;
 
-    public bool IsRunning => mStoredComponent != null || mMemory.HasInstructions;
+    public bool IsRunning => mRunningInstruction != null || mMemory.HasInstructions;
 
     public CPU(Memory memory, Register valueRegister, Register cycleRegister)
     {
@@ -19,35 +19,35 @@ internal class CPU
     
     public void BeginCycle()
     {
-        if (mStoredComponent == null)
+        if (mRunningInstruction == null)
         {
-            GenerateStoredComponent();
+            GenerateInstruction();
         }
     }
 
     public void EndCycle()
     {
-        var done = mStoredComponent.Run();
+        var done = mRunningInstruction.Run();
         if (done)
         {
-            mStoredComponent = null;
+            mRunningInstruction = null;
         }
 
         mCycleRegister.Add(1);
     }
 
-    private void GenerateStoredComponent()
+    private void GenerateInstruction()
     {
         var nextInstruction = mMemory.PopNextInstruction();
         
         if (nextInstruction == "noop")
         {
-            mStoredComponent = new NoopInstruction();
+            mRunningInstruction = new NoopInstruction();
         }
         else
         {
             var value = int.Parse(nextInstruction.Split(" ")[1]);
-            mStoredComponent = new AddInstruction(mValueRegister, value);
+            mRunningInstruction = new AddInstruction(mValueRegister, value);
         }
     }
 }
