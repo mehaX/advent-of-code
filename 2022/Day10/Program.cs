@@ -1,4 +1,4 @@
-﻿using Day10;
+﻿using Day10.Models;
 
 var instructions = File.ReadAllLines("input.txt").ToList();
 var definedCycles = new[] { 20, 60, 100, 140, 180, 220 };

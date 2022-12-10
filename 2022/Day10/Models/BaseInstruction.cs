@@ -1,3 +1,5 @@
+namespace Day10.Models;
+
 internal abstract class BaseInstruction
 {
     private readonly int mMaxCount;

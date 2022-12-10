@@ -1,4 +1,4 @@
-namespace Day10;
+namespace Day10.Models;
 
 public class Memory
 {
