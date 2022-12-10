@@ -8,7 +8,7 @@ internal class CPU
     
     private BaseInstruction? mStoredComponent;
 
-    public bool InProgress => mStoredComponent != null;
+    public bool IsRunning => mStoredComponent != null || mMemory.HasInstructions;
 
     public CPU(Memory memory, Register valueRegister, Register cycleRegister)
     {

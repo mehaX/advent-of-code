@@ -11,7 +11,7 @@ var memory = new Memory(instructions); // Memory that holds all instructions in 
 var cpu = new CPU(memory, valueRegister, cycleRegister); // CPU for handling instructions
 var crt = new CRT(valueRegister, cycleRegister); // Handles drawing
 
-while (cpu.InProgress || memory.HasInstructions)
+while (cpu.IsRunning)
 {
     if (definedCycles.Contains(cycleRegister.Value))
     {
