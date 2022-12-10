@@ -33,7 +33,7 @@ internal class CPU
             mRunningInstruction = null;
         }
 
-        mCycleRegister.Add(1);
+        mCycleRegister.Increase(1);
     }
 
     private void GenerateInstruction()

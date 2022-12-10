@@ -9,7 +9,7 @@ internal class Register
         Value = 1;
     }
 
-    public void Add(int value)
+    public void Increase(int value)
     {
         Value += value;
     }

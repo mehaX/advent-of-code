@@ -13,6 +13,6 @@ internal class AddInstruction : BaseInstruction
 
     protected override void Execute()
     {
-        mRegister.Add(mValue);
+        mRegister.Increase(mValue);
     }
 }
