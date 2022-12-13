@@ -6,16 +6,18 @@ internal class Graph
 
     private IEnumerable<ListElement> mNodes => mAllElements.Keys;
 
-    public void AddElement(ListElement node, List<ListElement> edges)
+    public void AddNodeWithEdges(ListElement node, List<ListElement> edges)
     {
         mAllElements.Add(node, edges);
     }
 
-    public List<ListElement> FindNodePath()
+    /**
+     * Find path that goes through all nodes
+     */
+    public List<ListElement> FindEulerianPath()
     {
         var result = new List<ListElement>();
 
-        var index = 1;
         foreach (var startNode in mNodes)
         {
             var solution = Dijkstra(startNode);
@@ -25,13 +27,14 @@ internal class Graph
                 result = solution;
                 break;
             }
-
-            index++;
         }
 
         return result;
     }
 
+    /**
+     * Actually this is kinda the reverse of Dijkstra, since we need the longest path instead of shortest
+     */
     private List<ListElement> Dijkstra(ListElement startNode)
     {
         var queue = new Queue<ListElement>();

@@ -7,65 +7,48 @@ int Part1()
 {
     var input = GetInput();
     
-    var result = 0;
-    var pairIndex = 1;
-    foreach (var pair in input.Chunk(2))
-    {
-        var compareResult = CompareList(pair[0], pair[1]);
-        if (compareResult == CompareResult.RightOrder)
-        {
-            result += pairIndex;
-        }
-
-        pairIndex++;
-    }
-
-    return result;
+    var groups = input.Chunk(2).ToList();
+    return groups.Select(pair =>
+            CompareList(pair[0], pair[1]) == CompareResult.RightOrder
+                ? groups.IndexOf(pair) + 1
+                : 0)
+        .Sum();
 }
 
 int Part2()
 {
-    var additionals = new[] { "[[2]]", "[[6]]" }
-        .Select(line => line.Substring(1, line.Length - 2)) // remove outer brackets
-        .Select(DeserializeStringList)
-        .Select(x => (ListElement)x)
-        .ToList();
-    
-    var input = GetInput().Concat(additionals).ToList();
+    var additionalPackets = GetInput("[[2]]", "[[6]]").ToList();
+    var input = GetInput().Concat(additionalPackets).ToList();
 
     var graph = new Graph();
 
-    foreach (var key in input)
+    foreach (var node in input)
     {
-        var value = input.Except(new[] { key })
-            .Where(x => CompareList(key, x) == CompareResult.RightOrder)
+        var edges = input.Except(new[] { node })
+            .Where(x => CompareList(node, x) == CompareResult.RightOrder)
             .ToList();
         
-        graph.AddElement(key, value);
+        graph.AddNodeWithEdges(node, edges);
     }
 
-    var path = graph.FindNodePath();
-    if (!path.Any())
-    {
-        return 0;
-    }
+    var path = graph.FindEulerianPath();
+    
     return path
-        .Where(n => additionals.Contains(n))
-        .Select(n => path.IndexOf(n) + 1)
+        .Where(n => additionalPackets.Contains(n))
+        .Select(n => path.IndexOf(n) + 1) // Get indexes of the additional packets
         .Aggregate((a, b) => a * b);
 }
 
-List<ListElement> GetInput()
+IEnumerable<ListElement> GetInput(params string[] args)
 {
-    return File.ReadLines("input.txt")
-        .Where(line => !string.IsNullOrEmpty(line))
+    return (args.Length > 0 ? args : File.ReadLines("input.txt"))
+        .Where(line => !string.IsNullOrEmpty(line)) // get rid of empty lines
         .Select(line => line.Substring(1, line.Length - 2)) // remove outer brackets
-        .Select(DeserializeStringList)
-        .Select(x => (ListElement)x)
+        .Select(DeserializeStringToListElement)
         .ToList();
 }
 
-IElement DeserializeStringList(string input)
+ListElement DeserializeStringToListElement(string input)
 {
     var result = new ListElement();
 
@@ -113,7 +96,7 @@ IElement DeserializeStringList(string input)
             }
 
             var subLength = subIndex - index - 1;
-            var element = DeserializeStringList(input.Substring(index + 1, subLength));
+            var element = DeserializeStringToListElement(input.Substring(index + 1, subLength));
             result.Elements.Add(element);
             index = subIndex + 1;
         }
