@@ -41,7 +41,7 @@ int? Dijkstra(Position start, Position end, char[,] matrix)
     queue.Enqueue(start);
     distances.Add(start, 0);
 
-    while (queue.Count != 0)
+    while (queue.Any())
     {
         queue.TryDequeue(out var current);
         var distance = distances[current];
