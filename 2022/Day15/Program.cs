@@ -1,16 +1,47 @@
 ﻿Console.WriteLine("Part 1: " + Part1());
+Console.WriteLine("Part 2: " + Part2());
 
 int Part1()
 {
     var map = GetInput();
     var y = 10;
-    map.Print();
-    var allPositions = map.AllPositions;
-
+    
+    var allPositions = map.AllPositions.ToList();
+    
     return map.Sensors
         .SelectMany(s => s.ScannedPositionsAtY(y))
         .Distinct()
         .Count(p => !allPositions.Contains(p));
+}
+
+long Part2()
+{
+    var maxValue = 4_000_000L;
+    var map = GetInput();
+    var offsets = new[] { -1, 1 };
+
+    foreach (var sensor in map.Sensors)
+    {
+        foreach (var xOffset in offsets)
+        {
+            foreach (var yOffset in offsets)
+            {
+                for (var dx = 0; dx <= sensor.Distance + 1; dx++)
+                {
+                    var dy = sensor.Distance + 1 - dx;
+                    var x = sensor.Position.X + dx * xOffset;
+                    var y = sensor.Position.Y + dy * yOffset;
+
+                    if (x >= 0 && x <= maxValue && y >= 0 && y <= maxValue && map.IsOutOfRange(x, y))
+                    {
+                        return x * maxValue + y;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
 }
 
 Map GetInput()
@@ -21,7 +52,7 @@ Map GetInput()
     foreach (var row in strInput)
     {
         var cols = row.Split(' ');
-        var positions = new string[]
+        var positions = new[]
             {
                 cols[2].Replace("x=", "").Replace(",", ""),
                 cols[3].Replace("y=", "").Replace(":", ""),
@@ -51,7 +82,12 @@ record Position(int X, int Y)
 {
     public int Distance(Position p)
     {
-        return (int)Math.Floor(Math.Sqrt(Math.Pow(p.Y - Y, 2) + Math.Pow(p.X - X, 2)));
+        return Math.Abs(p.Y - Y) + Math.Abs(p.X - X);
+    }
+
+    public int Distance(int x, int y)
+    {
+        return Math.Abs(y - Y) + Math.Abs(x - X);
     }
 }
 
@@ -76,50 +112,44 @@ class Sensor
         ClosestBeacon = closestBeacon;
     }
 
-    public int Radius => Math.Abs(ClosestBeacon.Position.X - Position.X) + Math.Abs(ClosestBeacon.Position.Y - Position.Y);
+    public int Distance => Position.Distance(ClosestBeacon.Position);
     
-    public int MinX => Position.X - Radius;
-    public int MaxX => Position.X + Radius;
-    public int MinY => Position.Y - Radius;
-    public int MaxY => Position.Y + Radius;
+    public int MinX => Position.X - Distance;
+    public int MaxX => Position.X + Distance;
+    public int MinY => Position.Y - Distance;
+    public int MaxY => Position.Y + Distance;
 
 
-    public List<Position> ScannedPositionsAtY(int y)
+    public IEnumerable<Position> ScannedPositionsAtY(int y)
     {
-        var positions = new List<Position>();
-
         var offset = Math.Abs(Position.Y - y);
-        if (offset > Radius) // Not in radius
+        if (offset > Distance) // Not in radius
         {
-            return positions;
+            yield break;
         }
 
         for (var x = MinX + offset; x <= MaxX - offset; x++)
         {
-            positions.Add(new Position(x, y));
+            yield return new Position(x, y);
         }
-
-        return positions;
     }
 
-    public List<Position> ScannedPositions()
+    public IEnumerable<Position> ScannedPositions(int min = int.MinValue, int max = int.MaxValue)
     {
-        var positions = new List<Position>();
-
-        for (var offset = 0; offset <= Radius; offset++)
+        for (var offset = 0; offset <= Distance; offset++)
         {
             for (var x = MinX + offset; x <= MaxX - offset; x++)
             {
-                positions.Add(new Position(x, Position.Y - offset));
-                if (offset > 0)
+                if (x >= min && x <= max && Position.Y - offset >= 0 && Position.Y - offset <= max)
                 {
-                    positions.Add(new Position(x, Position.Y + offset));
+                    yield return new Position(x, Position.Y - offset);
+                }
+                if (offset > 0 && x >= min && x <= max && Position.Y + offset >= 0 && Position.Y + offset <= max)
+                {
+                    yield return new Position(x, Position.Y + offset);
                 }
             }
         }
-
-
-        return positions;
     }
 }
 
@@ -137,9 +167,14 @@ class Map
         Beacons = new();
     }
 
+    public bool IsOutOfRange(int x, int y)
+    {
+        return Sensors.All(s => s.Position.Distance(x, y) > s.Distance);
+    }
+
     public void Print()
     {
-        var scannedPositions = Sensors.SelectMany(s => s.ScannedPositions());
+        var scannedPositions = Sensors.SelectMany(s => s.ScannedPositions()).Distinct().ToList();
         var allPositions = Sensors.Select(s => s.Position).ToList();
 
         var minX = allPositions.Select(p => p.X).Min();
