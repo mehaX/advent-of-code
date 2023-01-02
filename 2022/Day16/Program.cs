@@ -1,82 +1,115 @@
 ﻿using System.Text.RegularExpressions;
 
-Console.WriteLine("Part 1: " + Part(30, false));
-Console.WriteLine("Part 2: " + Part(26, true));
+var allValves = GetInput();
+var startValve = allValves.First(v => v.Identifier == "AA");
+var workingValves = allValves.Where(v => v.Rate > 0).ToList();
+var pathCosts = new[] { startValve }.Concat(workingValves).Distinct()
+    .Select(start => new KeyValuePair<Valve, Dictionary<Valve, int>>(start, workingValves
+        .Where(end => end != start)
+        .Select(end => new KeyValuePair<Valve, int>(end, GetLowestCost(start, end)))
+        .ToDictionary(kv => kv.Key, kv => kv.Value)))
+    .ToDictionary(kv => kv.Key, kv => kv.Value);
 
+var allPaths = MakeAllPaths(30);
+var scoredPaths = ScorePaths(allPaths, 30);
+Console.WriteLine("Part 1: " + scoredPaths.First().Value);
 
-int Part(int remainingTime, bool hasElephant)
+int GetLowestCost(Valve start, Valve end)
 {
-    var valves = GetInput();
-    var human = valves.First(v => v.Identifier == "AA");
-    var elephant = hasElephant ? human : null;
-    
-    var cache = new Dictionary<CacheKey, int>();
-    var opened = new Dictionary<Valve, int>();
+    var queue = new Queue<QueueKey>();
+    queue.Enqueue(new QueueKey(start, 0, new() { start }));
 
-    return DFS(human, elephant, remainingTime - 1, opened, cache);
-}
-
-int DFS(Valve human, Valve? elephant, int time,
-    Dictionary<Valve, int> opened,
-    Dictionary<CacheKey, int> cache)
-{
-    var flowed = opened.Select(kv => kv.Key.Rate * kv.Value).Sum();
-    if (time == 0)
+    while (queue.Any())
     {
-        return flowed;
-    }
-
-    var key = new CacheKey(human, elephant, time);
-    if (cache.GetValueOrDefault(key, int.MinValue) >= flowed)
-    {
-        return 0;
-    }
-
-    if (!cache.TryAdd(key, flowed))
-    {
-        cache[key] = flowed;
-    }
-    
-    var best = 0;
-
-    foreach (var nextHuman in new[] { human }.Concat(human.LeadingValves))
-    {
-        if (nextHuman == human)
+        var node = queue.Dequeue();
+        if (node.Valve == end)
         {
-            if (opened.ContainsKey(nextHuman) || nextHuman.Rate == 0) continue;
-            opened.Add(nextHuman, time);
+            return node.Cost;
         }
 
-        if (elephant == null)
+        if (node.Valve.LeadingValves.Contains(end))
         {
-            best = Math.Max(best, DFS(nextHuman, elephant, time - 1, opened, cache));
+            return node.Cost + 1;
         }
-        else
+
+        foreach (var edge in node.Valve.LeadingValves)
         {
-            foreach (var nextElephant in new[] { elephant }.Concat(elephant.LeadingValves))
+            if (!node.Visited.Contains(edge))
             {
-                if (nextElephant == elephant)
-                {
-                    if (opened.ContainsKey(nextElephant) || nextElephant.Rate == 0) continue;
-                    opened.Add(nextElephant, time);
-                }
-
-                best = Math.Max(best, DFS(nextHuman, nextElephant, time - 1, opened, cache));
-
-                if (nextElephant == elephant)
-                {
-                    opened.Remove(nextElephant);
-                }
+                queue.Enqueue(new QueueKey(
+                    edge,
+                    node.Cost + 1,
+                    node.Visited.Concat(new[] { edge }).ToList())
+                );
             }
         }
-
-        if (human == nextHuman)
-        {
-            opened.Remove(nextHuman);
-        }
     }
 
-    return best;
+    return -1;
+}
+
+void GetRemainingPath(List<Valve> steps, List<Valve> left, int costThusFar, List<List<Valve>> result, int time)
+{
+    var last = steps.Last();
+    if (left.Any())
+    {
+        result.Add(steps);
+
+        foreach (var next in left)
+        {
+            var cost = pathCosts[last][next];
+            if (cost + 1 + costThusFar >= time)
+            {
+                result.Add(steps);
+                continue;
+            }
+
+            GetRemainingPath(steps.Concat(new[] { next }).ToList(),
+                left.Where(pos => pos != next).ToList(),
+                costThusFar + cost + 1,
+                result, time
+            );
+        }
+    }
+}
+
+List<List<Valve>> MakeAllPaths(int time)
+{
+    var result = new List<List<Valve>>();
+
+    GetRemainingPath(new List<Valve>() { startValve },
+        workingValves, 0,
+        result, time
+    );
+
+    return result;
+}
+
+Dictionary<List<Valve>, int> ScorePaths(List<List<Valve>> paths, int time)
+{
+    return paths.Select(path => (path,
+            ScorePath(path.Take(1).ToList(), path.Skip(1).ToList(), time)))
+        .ToDictionary(kv => kv.path, kv => kv.Item2);
+}
+
+int ScorePath(List<Valve> opened, List<Valve> path, int timeLeft)
+{
+    var nextStep = path[0];
+    var remainingSteps = path.Skip(1).ToList();
+    var nextStepCost = pathCosts[opened[0]][nextStep];
+    var flowForStep = opened[0] == startValve ? 0 : opened[0].Rate * timeLeft;
+    if (path.Any())
+    {
+        return flowForStep;
+    }
+
+    var pressureReleased = ScorePath(
+        new[] { path[0] }.Concat(opened).ToList(),
+        remainingSteps,
+        timeLeft - nextStepCost - 1
+    );
+
+    return pressureReleased + flowForStep;
 }
 
 List<Valve> GetInput()
@@ -104,7 +137,7 @@ List<Valve> GetInput()
     return valves;
 }
 
-record CacheKey(Valve Human, Valve? Elephant, int Time);
+record QueueKey(Valve Valve, int Cost, List<Valve> Visited);
 
 class Valve
 {
